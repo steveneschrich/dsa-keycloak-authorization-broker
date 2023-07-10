@@ -6,7 +6,6 @@ FROM base AS deps
 COPY package.json /app/
 COPY pacakage-lock.json /app/
 
-
 FROM deps AS prodbase
 COPY . /app/
 RUN npm ci --only=production
