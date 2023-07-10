@@ -34,3 +34,10 @@ APP_ID=broker
 APP_PORT=8085
 APP_HOST="0.0.0.0"
 ```
+
+## Development
+
+You can use the `docker-compose.yml` file to run the service directly
+```
+docker-compose up
+```

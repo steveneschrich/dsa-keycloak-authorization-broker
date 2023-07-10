@@ -1,0 +1,23 @@
+version: "3.4"
+services:
+  authorization-broker:
+    build:
+      target: base
+      context: .
+      dockerfile: Dockerfile
+    container_name: "authorization-broker"
+    environment:
+      - DSA_HOST=http://host.docker.internal:8080
+      - KEYCLOAK_HOST=http://host.docker.internal:8083
+    ports:
+      - "8085:8085"
+    volumes:
+      - ./:/app
+    stop_signal: SIGKILL
+    privileged: true
+    stdin_open: true
+    tty: true
+    command: >
+      sh -c "npm install
+      && npm run start"
+    restart: "always"

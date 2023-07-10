@@ -27,19 +27,13 @@ export class Broker {
         keycloakUser.username
       );
 
-      Logger.debug(
-        chalk.blue.italic(
-          `===> ⚙ Running broker for user <${keycloakUser.username}>`
-        )
-      );
+      Logger.debug(`===> ⚙ Running broker for user <${keycloakUser.username}>`);
 
       if (dsaUser.length > 0) {
         await this.groupsNegotiation(keycloakUser, dsaUser[0]);
       } else {
         Logger.error(
-          chalk.red(
-            `===> ❌ User with username <${keycloakUser.username}> was not found on DSA`
-          )
+          `===> ❌ User with username <${keycloakUser.username}> was not found on DSA`
         );
       }
     });
@@ -63,27 +57,21 @@ export class Broker {
      * ADD USER
      */
     Logger.debug(
-      chalk.green.italic(
-        `======> Groups in Keycloak not in DSA [${groupsInKeycloakNotInDSA.map(
-          (group: any) => group.name
-        )}]`
-      )
+      `======> Groups in Keycloak not in DSA [${groupsInKeycloakNotInDSA.map(
+        (group: any) => group.name
+      )}]`
     );
 
     for (const keycloakGroup of groupsInKeycloakNotInDSA) {
       const dsaGroup = await this.dsaClient.getGroupByName(keycloakGroup.name);
       Logger.debug(
-        chalk.blue.italic(
-          `     |===> Adding user <${dsaUser.login}> to group <${keycloakGroup.name}>`
-        )
+        `     |===> Adding user <${dsaUser.login}> to group <${keycloakGroup.name}>`
       );
       if (dsaGroup.length > 0) {
         await this.dsaClient.addUserToGroup(dsaGroup[0]._id, dsaUser._id);
       } else {
-        console.error(
-          chalk.italic.red(
-            `     |===> ❌ Group <${keycloakGroup.name}> NOT FOUND on DSA`
-          )
+        Logger.error(
+          `     |===> ❌ Group <${keycloakGroup.name}> NOT FOUND on DSA`
         );
       }
     }
@@ -92,11 +80,9 @@ export class Broker {
      * REMOVE USER
      */
     Logger.debug(
-      chalk.green.italic(
-        `======> Groups in DSA not in Keycloak [${groupsInDSANotInKeycloak.map(
-          (group: any) => group.name
-        )}]`
-      )
+      `======> Groups in DSA not in Keycloak [${groupsInDSANotInKeycloak.map(
+        (group: any) => group.name
+      )}]`
     );
 
     for (const dsaGroup of groupsInDSANotInKeycloak) {
