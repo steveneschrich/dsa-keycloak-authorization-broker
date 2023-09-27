@@ -1,0 +1,11 @@
+version: "3.4"
+services:
+  authorization-broker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: "dsa-authorization-broker"
+    ports:
+      - "8085:8085"
+    stop_signal: SIGKILL
+    restart: "always"

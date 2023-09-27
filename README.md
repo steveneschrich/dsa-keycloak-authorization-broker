@@ -41,3 +41,13 @@ You can use the `docker-compose.yml` file to run the service directly
 ```
 docker-compose up
 ```
+## Deployment 
+```bash
+> docker build . --network host -t dsa-broker-service
+
+> docker run --name=dsa-broker-service -it -d --rm -p 8085:8085 dsa-broker-service
+
+OR
+
+> docker-compose -f docker-compose-prod.yml up -d
+```
