@@ -3,6 +3,7 @@ import config from "../config/config";
 import { ManageAxiosError } from "../axios/axios-helper";
 require("axios-debug-log");
 import qs from "qs";
+import { Logger } from "../logger";
 
 export class DSAClient {
   girderToken: string;
@@ -26,6 +27,9 @@ export class DSAClient {
       const encodedToken = Buffer.from(`${dsaUser}:${dsaPassword}`).toString(
         "base64"
       );
+      
+      Logger.debug(`DSA: Calling authentication endpoint for user ${dsaUser}, with url ${config.DSA_HOST}`);
+      
       const { data } = await axios.get(
         `${config.DSA_HOST}/api/v1/user/authentication`,
         {
