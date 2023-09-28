@@ -1,11 +1,9 @@
-import axios, { AxiosRequestConfig } from 'axios-https-proxy-fix';
+import axios, { AxiosRequestConfig} from 'axios';
 import config from "../config/config";
 import { ManageAxiosError } from "../axios/axios-helper";
 require("axios-debug-log");
 import qs from "qs";
 import { Logger } from "../logger";
-
-const tunnel = require('tunnel');
 
 export class DSAClient {
   girderToken: string;
@@ -34,23 +32,14 @@ export class DSAClient {
         `DSA: Calling authentication endpoint for user ${dsaUser}, with url ${config.DSA_HOST}`
       );
 
-      const agent = tunnel.httpsOverHttp({
-        proxy: {
-          host: 'https://dsa.moffitt.org',
-          port: 443,
-        },
-      });
-
       let axiosConfig: AxiosRequestConfig = {
         method: "get",
-        // maxBodyLength: Infinity,
+        maxBodyLength: Infinity,
         url: `${config.DSA_HOST}:443/api/v1/user/authentication`,
         headers: {
           Accept: "application/json",
           Authorization: `Basic ${encodedToken}`
         },
-        httpAgent: agent,
-        proxy: false
       };
 
       const { data } = await axios.request(axiosConfig);

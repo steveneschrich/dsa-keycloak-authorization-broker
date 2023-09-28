@@ -5,6 +5,8 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: "dsa-authorization-broker"
+    extra_hosts:
+      - "dsa.moffitt.org:10.6.203.65"
     ports:
       - "8085:8085"
     stop_signal: SIGKILL
