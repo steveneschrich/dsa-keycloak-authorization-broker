@@ -71,7 +71,7 @@ export class DSAClient {
       let axiosConfig = {
         method: "post",
         maxBodyLength: Infinity,
-        url: `${config.DSA_HOST}/api/v1/user/user`,
+        url: `${config.DSA_HOST}/api/v1/user`,
         data: userParams,
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
