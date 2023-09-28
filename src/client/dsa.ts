@@ -27,18 +27,22 @@ export class DSAClient {
       const encodedToken = Buffer.from(`${dsaUser}:${dsaPassword}`).toString(
         "base64"
       );
-      
-      Logger.debug(`DSA: Calling authentication endpoint for user ${dsaUser}, with url ${config.DSA_HOST}`);
-      
-      const { data } = await axios.get(
-        `${config.DSA_HOST}/api/v1/user/authentication`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Basic ${encodedToken}`,
-          },
-        }
+
+      Logger.debug(
+        `DSA: Calling authentication endpoint for user ${dsaUser}, with url ${config.DSA_HOST}`
       );
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/user/authentication`,
+        headers: {
+          Accept: "application/json",
+          Authorization: `Basic ${encodedToken}`
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -59,19 +63,23 @@ export class DSAClient {
         email: _email,
         firstName: _firstName,
         lastName: _lastName,
-        password: _password,
+        password: _password
       });
 
-      const { data } = await axios.post(
-        `${config.DSA_HOST}/api/v1/user`,
-        userParams,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Girder-Token": this.girderToken,
-          },
+      Logger.debug(`DSA: Calling authentication endpoint for login ${_login}`);
+
+      let axiosConfig = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/user/user`,
+        data: userParams,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -81,15 +89,19 @@ export class DSAClient {
 
   async getUsers() {
     try {
-      const { data } = await axios.get(
-        `${config.DSA_HOST}/api/v1/user?limit=50&sort=lastName&sortdir=1`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Girder-Token": this.girderToken,
-          },
+      Logger.debug(`DSA: Calling get users endpoint`);
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/user?limit=50&sort=lastName&sortdir=1`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -99,15 +111,21 @@ export class DSAClient {
 
   async getUserByUsernameOrEmail(usernameOrEmail: string) {
     try {
-      const { data } = await axios.get(
-        `${config.DSA_HOST}/api/v1/user?text=${usernameOrEmail}&limit=50&sort=lastName&sortdir=1`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Girder-Token": this.girderToken,
-          },
-        }
+      Logger.debug(
+        `DSA: Calling get users endpoint for usernameOrEmail: ${usernameOrEmail}`
       );
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/user?text=${usernameOrEmail}&limit=50&sort=lastName&sortdir=1`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -117,25 +135,29 @@ export class DSAClient {
 
   async getGroupById(groupId: string) {
     try {
-      const cacheValue = this.groupsCache.find((group) => group.id === groupId);
-      console;
+      const cacheValue = this.groupsCache.find(group => group.id === groupId);
+
       if (cacheValue !== undefined) {
         return cacheValue;
       }
 
-      const { data } = await axios.get(
-        `${config.DSA_HOST}/api/v1/group/${groupId}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Girder-Token": this.girderToken,
-          },
+      Logger.debug(`DSA: Calling get groups endpoint for groupId: ${groupId}`);
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/group/${groupId}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       const result = {
         id: data._id,
-        name: data.name,
+        name: data.name
       };
 
       this.groupsCache.push(result);
@@ -167,15 +189,19 @@ export class DSAClient {
 
   async getGroupByName(groupName: string) {
     try {
-      const { data } = await axios.get(
-        `${config.DSA_HOST}/api/v1/group?text=${groupName}&exact=false&limit=50&sort=name&sortdir=1`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Girder-Token": this.girderToken,
-          },
+      Logger.debug(`DSA: Calling get groups list for groupName: ${groupName}`);
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/group?text=${groupName}&exact=false&limit=50&sort=name&sortdir=1`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -185,16 +211,22 @@ export class DSAClient {
 
   async addUserToGroup(groupId: string, _userId: string) {
     try {
-      const { data } = await axios.post(
-        `${config.DSA_HOST}/api/v1/group/${groupId}/invitation`,
-        { userId: _userId, force: true, level: 0 },
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Girder-Token": this.girderToken,
-          },
-        }
+      Logger.debug(
+        `DSA: Calling add user to groups for user: ${_userId} with group: ${groupId}`
       );
+
+      let axiosConfig = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/group/${groupId}/invitation`,
+        data: { userId: _userId, force: true, level: 0 },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -204,15 +236,21 @@ export class DSAClient {
 
   async removeUserFromGroup(groupId: string, userId: string) {
     try {
-      const { data } = await axios.delete(
-        `${config.DSA_HOST}/api/v1/group/${groupId}/member?userId=${userId}`,
-        {
-          headers: {
-            Accept: "application/json",
-            "Girder-Token": this.girderToken,
-          },
-        }
+      Logger.debug(
+        `DSA: Calling delete user to groups for user: ${userId} with group: ${groupId}`
       );
+
+      let axiosConfig = {
+        method: "delete",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/group/${groupId}/member?userId=${userId}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -225,16 +263,22 @@ export class DSAClient {
       const newPassword = new URLSearchParams();
       newPassword.append("password", securePassword);
 
-      const { data } = await axios.put(
-        `${config.DSA_HOST}/api/v1/user/${_userId}/password`,
-        newPassword.toString(),
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Girder-Token": this.girderToken,
-          },
-        }
+      Logger.debug(
+        `DSA: calling change user password endpoint for user: ${_userId}`
       );
+
+      let axiosConfig = {
+        method: "put",
+        maxBodyLength: Infinity,
+        url: `${config.DSA_HOST}/api/v1/user/${_userId}/password`,
+        data: newPassword.toString(),
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "Girder-Token": this.girderToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {

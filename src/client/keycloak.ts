@@ -2,6 +2,7 @@ import axios from "axios";
 import config from "../config/config";
 import { ManageAxiosError } from "../axios/axios-helper";
 import qs from "qs";
+import { Logger } from "../logger";
 
 export class KeycloakClient {
   authToken: string;
@@ -19,19 +20,22 @@ export class KeycloakClient {
         username: config.KEYCLOAK_USER,
         password: config.KEYCLOAK_PASSWORD,
         grant_type: "password",
-        client_id: "admin-cli",
+        client_id: "admin-cli"
       });
 
-      const { data } = await axios.post(
-        `${config.KEYCLOAK_HOST}/realms/${config.KEYCLOAK_REALM}/protocol/openid-connect/token`,
-        authData,
-        {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        }
-      );
+      Logger.debug(`KEYCLOAK: Calling authorization endpoint`);
 
+      let axiosConfig = {
+        method: "post",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/realms/${config.KEYCLOAK_REALM}/protocol/openid-connect/token`,
+        data: authData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
       this.authToken = `Bearer ${data.access_token}`;
       this.client = await this.getClientIdByClientName();
     } catch (error) {
@@ -41,15 +45,19 @@ export class KeycloakClient {
 
   async getUsers() {
     try {
-      const { data } = await axios.get(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
+      Logger.debug(`KEYCLOAK: Calling realm users endpoint`);
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -59,15 +67,19 @@ export class KeycloakClient {
 
   async getUserByUsername(username: string) {
     try {
-      const { data } = await axios.get(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users?username=${username}`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
+      Logger.debug(`KEYCLOAK: Calling realm usernames endpoint`);
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users?username=${username}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -77,15 +89,21 @@ export class KeycloakClient {
 
   async getUserByEmail(email: string) {
     try {
-      const { data } = await axios.get(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users?email=${email}`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
-        }
+      Logger.debug(
+        `KEYCLOAK: Calling realm users endpoint with email: ${email}`
       );
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users?email=${email}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -95,15 +113,21 @@ export class KeycloakClient {
 
   async getGroupsByUserId(userId: string) {
     try {
-      const { data } = await axios.get(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users/${userId}/groups`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
-        }
+      Logger.debug(
+        `KEYCLOAK: Calling realm groups endpoint with userId: ${userId}`
       );
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/users/${userId}/groups`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
@@ -120,7 +144,7 @@ export class KeycloakClient {
       const groups = await Promise.all(groupsPromises);
       return users.map((user: any, index: number) => ({
         ...user,
-        groups: groups[index],
+        groups: groups[index]
       }));
     } catch (error) {
       ManageAxiosError(error);
@@ -129,15 +153,19 @@ export class KeycloakClient {
 
   async getClientIdByClientName(clientName = config.KEYCLOAK_CLIENT) {
     try {
-      const { data } = await axios.get(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/clients`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
+      Logger.debug(`KEYCLOAK: Calling realm clients endpoint`);
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/clients`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       const result = data.find((client: any) => client.clientId === clientName);
       return result;
@@ -148,15 +176,21 @@ export class KeycloakClient {
 
   async isSessionActive(clientId: string, login: string, sessionId: string) {
     try {
-      const { data } = await axios.get(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/clients/${clientId}/user-sessions`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
-        }
+      Logger.debug(
+        `KEYCLOAK: Calling realm clients sessions endpoint for clientId: ${clientId}`
       );
+
+      let axiosConfig = {
+        method: "get",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/clients/${clientId}/user-sessions`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
+        }
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       const activeSession = data.find(
         (session: any) => session.id === sessionId
@@ -178,16 +212,19 @@ export class KeycloakClient {
 
   async deleteSession(sessionId: string) {
     try {
-      console.log(this.authToken);
-      const { data } = await axios.delete(
-        `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/sessions/${sessionId}`,
-        {
-          headers: {
-            Accept: "application/json",
-            Authorization: this.authToken,
-          },
+      Logger.debug(`KEYCLOAK: Calling realm delete sessions endpoint`);
+
+      let axiosConfig = {
+        method: "delete",
+        maxBodyLength: Infinity,
+        url: `${config.KEYCLOAK_HOST}/admin/realms/${config.KEYCLOAK_REALM}/sessions/${sessionId}`,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          Authorization: this.authToken
         }
-      );
+      };
+
+      const { data } = await axios.request(axiosConfig);
 
       return data;
     } catch (error) {
