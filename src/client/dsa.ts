@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from 'axios';
 import config from "../config/config";
 import { ManageAxiosError } from "../axios/axios-helper";
 require("axios-debug-log");
@@ -41,15 +41,16 @@ export class DSAClient {
         },
       });
 
-      let axiosConfig = {
+      let axiosConfig: AxiosRequestConfig = {
         method: "get",
         maxBodyLength: Infinity,
-        url: `${config.DSA_HOST}/api/v1/user/authentication`,
+        url: `${config.DSA_HOST}:443/api/v1/user/authentication`,
         headers: {
           Accept: "application/json",
           Authorization: `Basic ${encodedToken}`
         },
-        agent: agent
+        httpAgent: agent,
+        proxy: false
       };
 
       const { data } = await axios.request(axiosConfig);
