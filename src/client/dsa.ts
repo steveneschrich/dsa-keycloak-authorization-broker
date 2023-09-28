@@ -39,7 +39,8 @@ export class DSAClient {
         headers: {
           Accept: "application/json",
           Authorization: `Basic ${encodedToken}`
-        }
+        },
+        proxy: { protocol: "https", host: "dsa.moffitt.org", port: 443 }
       };
 
       const { data } = await axios.request(axiosConfig);
