@@ -5,6 +5,8 @@ require("axios-debug-log");
 import qs from "qs";
 import { Logger } from "../logger";
 
+const tunnel = require('tunnel');
+
 export class DSAClient {
   girderToken: string;
   groupsCache: Array<any>;
@@ -32,6 +34,13 @@ export class DSAClient {
         `DSA: Calling authentication endpoint for user ${dsaUser}, with url ${config.DSA_HOST}`
       );
 
+      const agent = tunnel.httpsOverHttp({
+        proxy: {
+          host: 'https://dsa.moffitt.org',
+          port: 443,
+        },
+      });
+
       let axiosConfig = {
         method: "get",
         maxBodyLength: Infinity,
@@ -40,7 +49,7 @@ export class DSAClient {
           Accept: "application/json",
           Authorization: `Basic ${encodedToken}`
         },
-        proxy: { protocol: "https", host: "dsa.moffitt.org", port: 443 }
+        agent: agent
       };
 
       const { data } = await axios.request(axiosConfig);

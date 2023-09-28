@@ -23,9 +23,11 @@
     "fastify": "^4.18.0",
     "generate-password": "^1.7.0",
     "glob": "^10.3.0",
+    "https-proxy-agent": "^7.0.2",
     "ip": "^1.1.8",
     "pino": "^8.14.1",
-    "qs": "^6.11.2"
+    "qs": "^6.11.2",
+    "tunnel": "^0.0.6"
   },
   "devDependencies": {
     "@types/node": "^20.2.5",
